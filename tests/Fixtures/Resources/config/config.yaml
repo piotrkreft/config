@@ -1,0 +1,34 @@
+pk_config:
+    envs:
+        dev:
+            adapters:
+                - aws_ssm
+                - PK\Tests\Config\Fixtures\StorageAdapter\DummyAdapter
+            entries:
+                VAR_1: ~
+                VAR_2:
+                    description: Might be useful just for the future reference
+                    resolve_from: some_var_dev
+        stage:
+            adapters: aws_ssm
+            entries:
+                VAR_3: ~
+    entries:
+        VAR_2:
+            default_value: default_var_2_value
+            resolve_from: some_var
+    adapters:
+        aws_ssm:
+            client:
+                credentials:
+                    key: key
+                    secret: secret
+                version: latest
+                region: region
+            path: /{env}/global
+
+parameters:
+    pk.config.aws.ssm_client.class: PK\Tests\Config\Fixtures\Aws\SsmClientStub
+
+services:
+    PK\Tests\Config\Fixtures\StorageAdapter\DummyAdapter: ~

@@ -1,0 +1,8 @@
+parameters:
+    pk.config.adapter.local_env.class: PK\Config\StorageAdapter\LocalEnv
+
+services:
+    PK\Config\StorageAdapter\LocalEnv: '@pk.config.adapter.local_env'
+
+    pk.config.adapter.local_env:
+        class: '%pk.config.adapter.local_env.class%'

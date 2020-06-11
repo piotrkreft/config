@@ -1,0 +1,8 @@
+/vendor/
+var/
+.idea
+composer.lock
+.php_cs.cache
+.phpunit.result.cache
+.php-code-sniffer.cache
+infection.log

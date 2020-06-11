@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+if (!file_exists($autoload = __DIR__ . '/../../autoload.php') && !file_exists($autoload = __DIR__ . '/../vendor/autoload.php')) {
+    exit('Dependencies should be installed via Composer!' . \PHP_EOL);
+}
+
+require $autoload;
+
+$application = new \PK\Config\Console\Application(
+    new \PK\Config\DependencyInjection\ContainerFactory()
+);
+$application->run();

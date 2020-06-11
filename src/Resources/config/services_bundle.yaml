@@ -1,0 +1,5 @@
+imports:
+    - { resource: services.yaml }
+
+parameters:
+    pk.config.command.prefix: 'pk:config:'

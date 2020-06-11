@@ -1,0 +1,24 @@
+parameters:
+    pk.config.class: PK\Config\Config
+    pk.config.command.prefix: ''
+
+services:
+    PK\Config\ConfigInterface: '@pk.config'
+
+    pk.config:
+        class: '%pk.config.class%'
+        arguments:
+            $environments: []
+        public: true
+
+    pk.config.command.display:
+        class: PK\Config\Command\DisplayCommand
+        arguments:
+            $config: '@pk.config'
+        tags: [{name: 'console.command', command: '%pk.config.command.prefix%display'}]
+
+    pk.config.command.validate:
+        class: PK\Config\Command\ValidateCommand
+        arguments:
+            $config: '@pk.config'
+        tags: [{name: 'console.command', command: '%pk.config.command.prefix%validate'}]

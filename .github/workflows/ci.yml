@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          coverage: pcov
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-suggest --prefer-stable
+
+      - name: PHPUnit with coverage
+        run: vendor/bin/phpunit --coverage-clover=build/logs/clover.xml tests
+
+      - name: Report coverage
+        run: vendor/bin/php-coveralls
+        env:
+          COVERALLS_RUN_LOCALLY: yes
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+      - name: Infection mutations
+        run: vendor/bin/infection --show-mutations
+        env:
+          INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}

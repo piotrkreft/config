@@ -1,0 +1,17 @@
+parameters:
+    pk.config.adapter.ssm_client.class: PK\Config\StorageAdapter\AwsSsm
+    pk.config.aws.ssm_client.class: Aws\Ssm\SsmClient
+
+services:
+    PK\Config\StorageAdapter\AwsSsm: '@pk.config.adapter.ssm_client'
+
+    pk.config.adapter.ssm_client:
+        class: '%pk.config.adapter.ssm_client.class%'
+        arguments:
+            $path: '%pk.config.adapter.ssm_client.path%'
+            $ssmClient: '@pk.config.aws.ssm_client'
+
+    pk.config.aws.ssm_client:
+        class: '%pk.config.aws.ssm_client.class%'
+        arguments:
+            $args: '%pk.config.aws.ssm_client.args%'

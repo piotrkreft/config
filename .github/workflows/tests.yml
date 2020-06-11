@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.2','7.3','7.4']
+        composer-opts: ['--prefer-lowest', '']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Validate dependencies
+        run: composer validate
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-suggest ${{ matrix.composer-opts }} --prefer-stable
+
+      - name: Run test suite
+        run: composer test
