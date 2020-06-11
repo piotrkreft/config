@@ -25,7 +25,7 @@
         "symfony/framework-bundle": "^4.0|^5.0"
     },
     "suggest": {
-        "aws/aws-sdk-ph": "For using AWS System Manager configuration",
+        "aws/aws-sdk-php": "For using AWS Simple Systems Manager parameters",
         "symfony/http-kernel": "For using the component as Symfony Bundle"
     },
     "autoload": {
