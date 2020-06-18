@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace PK\Config\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
@@ -89,7 +87,7 @@ class Configuration implements ConfigurationInterface
     {
         $definition = new ArrayNodeDefinition('entries');
 
-        return $definition
+        $entriesConfig = $definition
             ->useAttributeAsKey('name')
             ->arrayPrototype()
                 ->validate()
@@ -99,11 +97,6 @@ class Configuration implements ConfigurationInterface
                     ->thenInvalid('Cannot set `required` as false and `default_value`.')
                 ->end()
                 ->children()
-                    ->append(
-                        $canBeDisabled ?
-                            (new BooleanNodeDefinition('disabled'))->defaultFalse() :
-                            new VariableNodeDefinition('noop')
-                    )
                     ->booleanNode('required')
                         ->defaultTrue()
                     ->end()
@@ -111,8 +104,12 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('resolve_from')
                         ->info('The name from which adapter value will be resolved.')
                     ->end()
-                    ->scalarNode('description')->end()
-                ->end()
-            ->end();
+                    ->scalarNode('description')->end();
+
+        if ($canBeDisabled) {
+            $entriesConfig->booleanNode('disabled')->defaultFalse()->end();
+        }
+
+        return $definition;
     }
 }
