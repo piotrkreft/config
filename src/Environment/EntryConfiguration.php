@@ -29,25 +29,18 @@ class EntryConfiguration
     private $defaultValue;
 
     /**
-     * @var string
-     */
-    private $resolveFrom;
-
-    /**
      * @param mixed $defaultValue
      */
     public function __construct(
         string $name,
         bool $required = true,
         bool $hasDefaultValue = false,
-        $defaultValue = null,
-        ?string $resolveFrom = null
+        $defaultValue = null
     ) {
         $this->name = $name;
         $this->required = $required;
         $this->hasDefaultValue = $hasDefaultValue;
         $this->defaultValue = $defaultValue;
-        $this->resolveFrom = $resolveFrom ?? $name;
     }
 
     public function getName(): string
@@ -75,10 +68,5 @@ class EntryConfiguration
         }
 
         return $this->defaultValue;
-    }
-
-    public function getResolveFrom(): ?string
-    {
-        return $this->resolveFrom;
     }
 }

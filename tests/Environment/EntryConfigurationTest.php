@@ -40,6 +40,5 @@ class EntryConfigurationTest extends TestCase
         // then
         $this->assertTrue($entry->isRequired());
         $this->assertFalse($entry->hasDefaultValue());
-        $this->assertEquals('name', $entry->getResolveFrom());
     }
 }

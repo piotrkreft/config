@@ -25,6 +25,7 @@ namespace PK\Tests\Config\DependencyInjection
     use PK\Config\PKConfigBundle;
     use PK\Config\StorageAdapter\AwsSsm;
     use PK\Config\StorageAdapter\LocalEnv;
+    use PK\Config\StorageAdapter\NameResolver;
     use Symfony\Component\DependencyInjection\ContainerBuilder;
     use Symfony\Component\DependencyInjection\Definition;
     use Symfony\Component\DependencyInjection\Reference;
@@ -68,13 +69,31 @@ namespace PK\Tests\Config\DependencyInjection
                         'entries' => [
                             'ENV_VAR_3' => [
                                 'required' => true,
-                                'resolve_from' => 'RESOLVED_ENV_VAR_3',
+                                'resolve_from' => [
+                                    'aws_ssm' => 'RESOLVED_ENV_VAR_3',
+                                ],
                             ],
                             'ENV_VAR_4' => [
                                 'disabled' => true,
                                 'description' => 'Might be useful',
                             ],
-                            'ENV_VAR_5' => [],
+                            'ENV_VAR_5' => [
+                                'resolve_from' => [
+                                    'custom_service_id' => 'some_var',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'stage' => [
+                        'adapters' => 'aws_ssm',
+                        'entries' => [
+                            'ENV_VAR_4' => [
+                                'disabled' => true,
+                                'resolve_from' => 'makes_no_sense',
+                            ],
+                            'ENV_VAR_2' => [
+                                'disabled' => true,
+                            ],
                         ],
                     ],
                 ],
@@ -82,7 +101,6 @@ namespace PK\Tests\Config\DependencyInjection
                     'ENV_VAR_1' => [],
                     'ENV_VAR_2' => [
                         'default_value' => 'var_2_default',
-                        'resolve_from' => 'some_var',
                     ],
                     'ENV_VAR_3' => [
                         'required' => false,
@@ -90,11 +108,12 @@ namespace PK\Tests\Config\DependencyInjection
                     'ENV_VAR_4' => [
                         'resolve_from' => 'RESOLVED_ENV_VAR_4',
                     ],
+                    'ENV_VAR_5' => [
+                        'resolve_from' => 'RESOLVED_VAR_5',
+                    ],
                 ],
                 'adapters' => [
-                    'local_env' => [
-                        'enabled' => true,
-                    ],
+                    'local_env' => true,
                     'aws_ssm' => [
                         'client' => [
                             'credentials' => [
@@ -119,60 +138,79 @@ namespace PK\Tests\Config\DependencyInjection
             $this->assertTrue($container->hasAlias(AwsSsm::class));
             $this->assertTrue($container->hasAlias(LocalEnv::class));
             $environmentsDefinitions = $container->getDefinition('pk.config')->getArgument('$environments');
-            $this->assertCount(1, $environmentsDefinitions);
+            $this->assertCount(2, $environmentsDefinitions);
             $this->assertEquals('dev', $environmentsDefinitions[0]->getArgument('$name'));
+            $this->assertEquals('stage', $environmentsDefinitions[1]->getArgument('$name'));
             $this->assertEquals(
                 [
-                    new Definition(
-                        EntryConfiguration::class,
-                        [
-                            '$name' => 'ENV_VAR_1',
-                            '$required' => true,
-                            '$hasDefaultValue' => false,
-                            '$defaultValue' => null,
-                            '$resolveFrom' => null,
-                        ]
-                    ),
-                    new Definition(
-                        EntryConfiguration::class,
-                        [
-                            '$name' => 'ENV_VAR_2',
-                            '$required' => true,
-                            '$hasDefaultValue' => true,
-                            '$defaultValue' => 'var_2_default',
-                            '$resolveFrom' => 'some_var',
-                        ]
-                    ),
-                    new Definition(
-                        EntryConfiguration::class,
-                        [
-                            '$name' => 'ENV_VAR_3',
-                            '$required' => true,
-                            '$hasDefaultValue' => false,
-                            '$defaultValue' => null,
-                            '$resolveFrom' => 'RESOLVED_ENV_VAR_3',
-                        ]
-                    ),
-                    new Definition(
-                        EntryConfiguration::class,
-                        [
-                            '$name' => 'ENV_VAR_5',
-                            '$required' => true,
-                            '$hasDefaultValue' => false,
-                            '$defaultValue' => null,
-                            '$resolveFrom' => null,
-                        ]
-                    ),
+                    $this->configurationDefinition('ENV_VAR_1', true, false, null),
+                    $this->configurationDefinition('ENV_VAR_2', true, true, 'var_2_default'),
+                    $this->configurationDefinition('ENV_VAR_3', true, false, null),
+                    $this->configurationDefinition('ENV_VAR_5', true, false, null),
                 ],
                 $environmentsDefinitions[0]->getArgument('$entriesConfiguration')
             );
             $this->assertEquals(
                 [
-                    new Reference('pk.config.adapter.ssm_client'),
+                    $this->configurationDefinition('ENV_VAR_1', true, false, null),
+                    $this->configurationDefinition('ENV_VAR_3', false, false, null),
+                    $this->configurationDefinition('ENV_VAR_5', true, false, null),
+                ],
+                $environmentsDefinitions[1]->getArgument('$entriesConfiguration')
+            );
+            $this->assertEquals(
+                [
+                    new Definition(
+                        NameResolver::class,
+                        [
+                            '$adapter' => new Reference('pk.config.adapter.ssm_client'),
+                            '$resolveFromMap' => ['RESOLVED_ENV_VAR_3' => 'ENV_VAR_3'],
+                        ]
+                    ),
                     new Reference('pk.config.adapter.local_env'),
-                    new Reference('custom_service_id'),
+                    new Definition(
+                        NameResolver::class,
+                        [
+                            '$adapter' => new Reference('custom_service_id'),
+                            '$resolveFromMap' => ['some_var' => 'ENV_VAR_5'],
+                        ]
+                    ),
                 ],
                 $environmentsDefinitions[0]->getArgument('$adapters')
+            );
+            $this->assertEquals(
+                [
+                    new Definition(
+                        NameResolver::class,
+                        [
+                            '$adapter' => new Reference('pk.config.adapter.ssm_client'),
+                            '$resolveFromMap' => [
+                                'RESOLVED_VAR_5' => 'ENV_VAR_5',
+                            ],
+                        ]
+                    ),
+                ],
+                $environmentsDefinitions[1]->getArgument('$adapters')
+            );
+        }
+
+        /**
+         * @param mixed $defaultValue
+         */
+        private function configurationDefinition(
+            string $name,
+            bool $required,
+            bool $hasDefaultValue,
+            $defaultValue
+        ): Definition {
+            return new Definition(
+                EntryConfiguration::class,
+                [
+                    '$name' => $name,
+                    '$required' => $required,
+                    '$hasDefaultValue' => $hasDefaultValue,
+                    '$defaultValue' => $defaultValue,
+                ]
             );
         }
 
@@ -231,7 +269,6 @@ namespace PK\Tests\Config\DependencyInjection
                         ],
                     ],
                 ],
-                'adapters' => [],
             ];
         }
 

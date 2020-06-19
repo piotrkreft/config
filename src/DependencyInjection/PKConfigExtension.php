@@ -9,6 +9,7 @@ use PK\Config\Environment\EntryConfiguration;
 use PK\Config\Environment\Environment;
 use PK\Config\Exception\LogicException;
 use PK\Config\PKConfigBundle;
+use PK\Config\StorageAdapter\NameResolver;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -34,21 +35,29 @@ class PKConfigExtension extends Extension
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
-        $adaptersMap = isset($config['adapters']) ?
-            $this->processAdapters($config['adapters'], $container, $loader) :
-            [];
-
-        $environments = [];
-        foreach ($config['envs'] as $name => $envConfig) {
-            $environments[] = $this->processEnvConfig($name, $envConfig, $config['entries'], $adaptersMap);
-        }
-        $container->getDefinition('pk.config')->setArgument('$environments', $environments);
+        $this->doLoad($config, $container, $loader);
     }
 
     private function isInstalledAsBundle(ContainerBuilder $container): bool
     {
         return $container->hasParameter('kernel.bundles')
             && in_array(PKConfigBundle::class, $container->getParameter('kernel.bundles'));
+    }
+
+    /**
+     * @param mixed[] $config
+     */
+    private function doLoad(array $config, ContainerBuilder $container, YamlFileLoader $loader): void
+    {
+        $adaptersMap = isset($config['adapters']) ?
+            $this->processAdapters($config['adapters'], $container, $loader) :
+            [];
+
+        $environments = [];
+        foreach ($config['envs'] as $name => $envConfig) {
+            $environments[] = $this->processEnvConfig($name, $envConfig, $adaptersMap);
+        }
+        $container->getDefinition('pk.config')->setArgument('$environments', $environments);
     }
 
     /**
@@ -59,15 +68,22 @@ class PKConfigExtension extends Extension
     private function processEnvConfig(
         string $env,
         array $config,
-        array $globalEntries,
         array $adaptersMap
     ): Definition {
-        $merged = array_merge($globalEntries, $config['entries']);
-        $envEntries = array_values($this->processEntries($merged));
+        $entries = $this->processEntries($config['entries']);
+        $resolveFromMap = $this->processResolveFrom($config['entries']);
 
         $adapters = [];
         foreach ($config['adapters'] as $adapterId) {
-            $adapters[] = new Reference($adaptersMap[$adapterId] ?? $adapterId);
+            $adapters[] = isset($resolveFromMap[$adapterId]) ?
+                new Definition(
+                    NameResolver::class,
+                    [
+                        '$adapter' => $this->resolveAdapterReference($adaptersMap, $adapterId),
+                        '$resolveFromMap' => $resolveFromMap[$adapterId],
+                    ]
+                ) :
+                $this->resolveAdapterReference($adaptersMap, $adapterId);
         }
 
         return new Definition(
@@ -75,7 +91,7 @@ class PKConfigExtension extends Extension
             [
                 '$name' => $env,
                 '$adapters' => $adapters,
-                '$entriesConfiguration' => $envEntries,
+                '$entriesConfiguration' => $entries,
             ]
         );
     }
@@ -89,22 +105,48 @@ class PKConfigExtension extends Extension
     {
         $entries = [];
         foreach ($config as $name => $entryConfig) {
-            if ($entryConfig['disabled'] ?? false) {
-                continue;
-            }
-            $entries[$name] = new Definition(
+            $entries[] = new Definition(
                 EntryConfiguration::class,
                 [
                     '$name' => $name,
                     '$required' => $entryConfig['required'],
                     '$hasDefaultValue' => isset($entryConfig['default_value']),
                     '$defaultValue' => $entryConfig['default_value'] ?? null,
-                    '$resolveFrom' => $entryConfig['resolve_from'] ?? null,
                 ]
             );
         }
 
         return $entries;
+    }
+
+    /**
+     * @param mixed[]  $entries
+     * @param string[] $adapters
+     *
+     * @return string[][]
+     */
+    private function processResolveFrom(array $entries): array
+    {
+        $resolveFromMap = [];
+        foreach ($entries as $name => $entry) {
+            $resolveFrom = $entry['resolve_from'];
+            if (empty($resolveFrom)) {
+                continue;
+            }
+            foreach ($resolveFrom as $adapterId => $doResolveFrom) {
+                $resolveFromMap[$adapterId][$doResolveFrom] = $name;
+            }
+        }
+
+        return $resolveFromMap;
+    }
+
+    /**
+     * @param string[] $adaptersMap
+     */
+    private function resolveAdapterReference(array $adaptersMap, string $adapterId): Reference
+    {
+        return new Reference($adaptersMap[$adapterId] ?? $adapterId);
     }
 
     /**

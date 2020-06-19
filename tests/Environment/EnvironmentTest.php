@@ -43,11 +43,11 @@ class EnvironmentTest extends TestCase
                 $this->secondAdapter,
             ],
             [
-                new EntryConfiguration('VAR_1', true, false, null, null),
-                new EntryConfiguration('VAR_2', true, true, 'default_value', null),
-                new EntryConfiguration('VAR_3', true, false, null, 'VAR_3{origin_name}'),
-                new EntryConfiguration('VAR_4', false, false, null, null),
-                new EntryConfiguration('VAR_5', false, false, null, null),
+                new EntryConfiguration('VAR_1', true, false, null),
+                new EntryConfiguration('VAR_2', true, true, 'default_value'),
+                new EntryConfiguration('VAR_3', true, false, null),
+                new EntryConfiguration('VAR_4', false, false, null),
+                new EntryConfiguration('VAR_5', false, false, null),
             ]
         );
     }
@@ -60,7 +60,6 @@ class EnvironmentTest extends TestCase
             ->method('fetch')
             ->willReturn([
                 new Entry('VAR_1', 'VAR_1_value_first'),
-                new Entry('VAR_3{origin_name}', 'VAR_3_value_first'),
                 new Entry('VAR_4', 'VAR_4_value_first'),
                 new Entry('VAR_5', 'VAR_5_value_first'),
                 new Entry('VAR_6', 'VAR_6_value_first'),
@@ -84,8 +83,8 @@ class EnvironmentTest extends TestCase
                 new Entry('VAR_4', 'VAR_4_value_first'),
                 new Entry('VAR_5', 'VAR_5_value_first'),
                 new Entry('VAR_1', 'VAR_1_value_first'),
-                new Entry('VAR_3', 'VAR_3_value_first'),
                 new Entry('VAR_2', 'VAR_2_value_second'),
+                new Entry('VAR_3', 'VAR_3_value_second'),
             ],
             $entries
         );
@@ -99,7 +98,6 @@ class EnvironmentTest extends TestCase
             ->method('fetch')
             ->willReturn([
                 new Entry('VAR_1', 'VAR_1_value_first'),
-                new Entry('VAR_3{origin_name}', 'VAR_3_value_first'),
                 new Entry('VAR_4', 'VAR_4_value_first'),
                 new Entry('VAR_6', 'VAR_6_value_first'),
             ]);
@@ -120,7 +118,7 @@ class EnvironmentTest extends TestCase
             [
                 new Entry('VAR_4', 'VAR_4_value_first'),
                 new Entry('VAR_1', 'VAR_1_value_first'),
-                new Entry('VAR_3', 'VAR_3_value_first'),
+                new Entry('VAR_3', 'VAR_3_value_second'),
                 new Entry('VAR_2', 'default_value'),
             ],
             $entries
@@ -171,7 +169,6 @@ class EnvironmentTest extends TestCase
             ->method('fetch')
             ->willReturn([
                 new Entry('VAR_1', 'VAR_1_value_first'),
-                new Entry('VAR_3{origin_name}', 'VAR_3_value_first'),
                 new Entry('VAR_6', 'VAR_6_value_second'),
             ]);
         $this->secondAdapter
@@ -250,6 +247,6 @@ class EnvironmentTest extends TestCase
         $this->expectExceptionMessage(EntryConfiguration::class);
 
         // when
-        new Environment('env', [$this->firstAdapter], [new \stdClass()]);
+        new Environment('env', [$this->firstAdapter], ['string']);
     }
 }

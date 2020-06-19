@@ -8,11 +8,14 @@ pk_config:
                 VAR_1: ~
                 VAR_2:
                     description: Might be useful just for the future reference
-                    resolve_from: some_var_dev
+                    resolve_from:
+                        aws_ssm: some_var_dev
         stage:
             adapters: aws_ssm
             entries:
                 VAR_3: ~
+                VAR_4:
+                    resolve_from: var_4
     entries:
         VAR_2:
             default_value: default_var_2_value

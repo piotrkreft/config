@@ -69,10 +69,8 @@ class Environment implements EnvironmentInterface
                     is_object($configuration) ? get_class($configuration) : gettype($configuration)
                 ));
             }
-            $method = $configuration->isRequired() ? 'requiredEntries' : 'optionalEntries';
-            $this->{$method}[$configuration->getResolveFrom()] =
-                $configuration;
-            $this->entries[$configuration->getResolveFrom()] = $configuration;
+            $property = $configuration->isRequired() ? 'requiredEntries' : 'optionalEntries';
+            $this->{$property}[$configuration->getName()] = $this->entries[$configuration->getName()] = $configuration;
         }
     }
 
@@ -92,14 +90,12 @@ class Environment implements EnvironmentInterface
             throw new MissingValuesException($this->getName(), ...$missing);
         }
 
-        $merged = array_values(
+        return array_values(
             array_merge(
                 array_intersect_key($entries, $this->optionalEntries),
                 array_intersect_key($entries, $this->requiredEntries)
             )
         );
-
-        return $this->resolveNames($merged);
     }
 
     /**
@@ -152,23 +148,5 @@ class Environment implements EnvironmentInterface
         }
 
         return $withNoDefault;
-    }
-
-    /**
-     * @param Entry[] $entries
-     *
-     * @return Entry[]
-     */
-    private function resolveNames(array $entries): array
-    {
-        return array_map(
-            function (Entry $entry): Entry {
-                return new Entry(
-                    $this->entries[$entry->getName()]->getName(),
-                    $entry->getValue()
-                );
-            },
-            $entries
-        );
     }
 }
