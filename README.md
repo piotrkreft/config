@@ -14,27 +14,53 @@ local environments and some external storage like AWS Simple Systems Manager and
 
 This component allows you to keep it tight in one source with a predefined yaml solution.
 
-## Example
-```php
-use PK\Config\ConfigFactory;
-
-$config = ConfigFactory::create(realpath('/configuration/config.yaml'));
-
-$config->validate('dev');
-
-$config->fetch('dev');
+## Installation
+```bash
+composer require piotrkreft/config
 ```
 
+## Usage
+### Configuration
 [example configuration](tests/Fixtures/Resources/config/config.yaml)
 
 :information_source: Variables declared within envs scope take the precedence over global ones.
 
 :information_source: Global variables can be disabled in specific env with the `disable` flag.
 
-## Adapters
-To be able to use different configuration sources adapters are needed.
-By default package provides:
+### CLI
+Validation of entries:
+```bash
+vendor/bin/pk-config -c config.yaml validate dev
+```
 
+Displaying of entries:
+```bash
+vendor/bin/pk-config -c config.yaml display dev
+```
+
+### PHP
+```php
+use PK\Config\ConfigFactory;
+
+$config = ConfigFactory::create(realpath('config.yaml'));
+
+$config->validate('dev');
+
+$config->fetch('dev');
+```
+
+### Symfony Bundle
+It's possible to use the component as a Symfony Bundle.
+Just make sure you have `symfony/http-kernel` installed and add `PK\Config\PKConfigBundle` to your application Kernel.
+
+If used as such commands will receive `pk:config:` and can be used like:
+```bash
+bin/console pk:config:validate
+```
+
+### Adapters
+To be able to use a different configuration sources adapters are needed.
+By default, package provides:
 * aws_ssm (`PK\Config\StorageAdapter\AwsSsm`) - for AWS Simple Systems Manager parameters
 * local_env (`PK\Config\StorageAdapter\LocalEnv`) - for local environment variables
 
@@ -44,18 +70,10 @@ If needed a new adapter can be easily created. Just remember to interface it wit
 
 :information_source: Order of the adapters in each environment is also a priority. If the first adapter provides value, the following will be ignored.
 
-## CLI
-Validation of entries:
+### Testing
 ```bash
-bin/pk-config -c tests/Fixtures/Resources/config/config.yaml validate dev
+composer test
 ```
 
-Displaying of entries:
-```bash
-bin/pk-config -c tests/Fixtures/Resources/config/config.yaml display dev
-```
-
-## Symfony Bundle
-It's possible to use the component as a Symfony Bundle. Just make sure you have `symfony/http-kernel` installed.
-
-If used as such commands will receive `pk:config:` (i.e. `pk:config:validate`) prefix.
+## License
+The MIT License (MIT). Please see [LICENSE](./LICENSE) for more information.
