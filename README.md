@@ -75,5 +75,8 @@ If needed a new adapter can be easily created. Just remember to interface it wit
 composer test
 ```
 
+## Changelog
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
 ## License
-The MIT License (MIT). Please see [LICENSE](./LICENSE) for more information.
+The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
