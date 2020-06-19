@@ -66,7 +66,7 @@ class Environment implements EnvironmentInterface
                 throw new InvalidArgumentException(sprintf(
                     'Entry configuration should implement %s. %s Given.',
                     EntryConfiguration::class,
-                    is_object($configuration) ? get_class($configuration) : gettype($configuration)
+                    get_debug_type($configuration)
                 ));
             }
             $property = $configuration->isRequired() ? 'requiredEntries' : 'optionalEntries';
