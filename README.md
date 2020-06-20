@@ -55,7 +55,7 @@ Just make sure you have `symfony/http-kernel` installed and add `PK\Config\PKCon
 
 If used as such commands will receive `pk:config:` and can be used like:
 ```bash
-bin/console pk:config:validate
+bin/console pk:config:validate dev
 ```
 
 ### Adapters
