@@ -110,7 +110,7 @@ class PKConfigExtension extends Extension
                 [
                     '$name' => $name,
                     '$required' => $entryConfig['required'],
-                    '$hasDefaultValue' => isset($entryConfig['default_value']),
+                    '$hasDefaultValue' => array_key_exists('default_value', $entryConfig),
                     '$defaultValue' => $entryConfig['default_value'] ?? null,
                 ]
             );

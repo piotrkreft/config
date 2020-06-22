@@ -110,6 +110,7 @@ namespace PK\Tests\Config\DependencyInjection
                     ],
                     'ENV_VAR_5' => [
                         'resolve_from' => 'RESOLVED_VAR_5',
+                        'default_value' => null,
                     ],
                 ],
                 'adapters' => [
@@ -154,7 +155,7 @@ namespace PK\Tests\Config\DependencyInjection
                 [
                     $this->configurationDefinition('ENV_VAR_1', true, false, null),
                     $this->configurationDefinition('ENV_VAR_3', false, false, null),
-                    $this->configurationDefinition('ENV_VAR_5', true, false, null),
+                    $this->configurationDefinition('ENV_VAR_5', true, true, null),
                 ],
                 $environmentsDefinitions[1]->getArgument('$entriesConfiguration')
             );

@@ -181,7 +181,12 @@ class ConfigurationTest extends TestCase
         );
     }
 
-    public function testShouldThrowExceptionForNotRequiredAndDefaultValue(): void
+    /**
+     * @dataProvider defaultValueProvider
+     *
+     * @param mixed $defaultValue
+     */
+    public function testShouldThrowExceptionForNotRequiredAndDefaultValue($defaultValue): void
     {
         $configuration = [
             'envs' => [
@@ -195,7 +200,7 @@ class ConfigurationTest extends TestCase
             'entries' => [
                 'ENV_VAR_1' => [
                     'required' => false,
-                    'default_value' => 'value',
+                    'default_value' => $defaultValue,
                 ],
             ],
         ];
@@ -205,6 +210,18 @@ class ConfigurationTest extends TestCase
             $this->configuration,
             ['pk_config' => $configuration]
         );
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function defaultValueProvider(): array
+    {
+        return [
+            ['value'],
+            [null],
+            [[]],
+        ];
     }
 
     public function testShouldThrowExceptionForNotExistingAdapterInResolveFromEntry(): void

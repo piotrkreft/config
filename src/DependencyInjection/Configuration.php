@@ -100,7 +100,7 @@ class Configuration implements ConfigurationInterface
             ->arrayPrototype()
                 ->validate()
                     ->ifTrue(function (array $v): bool {
-                        return !$v['required'] && isset($v['default_value']);
+                        return !$v['required'] && array_key_exists('default_value', $v);
                     })
                     ->thenInvalid('Cannot set `required` as false and `default_value`.')
                 ->end()
