@@ -51,27 +51,28 @@ class Environment implements EnvironmentInterface
             throw new LogicException('At least one entry configuration has to be provided.');
         }
         foreach ($adapters as $adapter) {
-            if (!$adapter instanceof StorageAdapterInterface) {
-                throw new InvalidArgumentException(sprintf(
-                    'Adapter should implement %s. %s Given.',
-                    StorageAdapterInterface::class,
-                    get_debug_type($adapter)
-                ));
-            }
+            $this->validateElement($adapter, StorageAdapterInterface::class, 'Adapter');
         }
         $this->adapters = $adapters;
         $this->requiredEntries = $this->optionalEntries = [];
         foreach ($entriesConfiguration as $configuration) {
-            if (!$configuration instanceof EntryConfiguration) {
-                throw new InvalidArgumentException(sprintf(
-                    'Entry configuration should implement %s. %s Given.',
-                    EntryConfiguration::class,
-                    get_debug_type($configuration)
-                ));
-            }
+            $this->validateElement($configuration, EntryConfiguration::class, 'Entry configuration');
             $property = $configuration->isRequired() ? 'requiredEntries' : 'optionalEntries';
             $this->{$property}[$configuration->getName()] = $this->entries[$configuration->getName()] = $configuration;
         }
+    }
+
+    /**
+     * @param mixed $element
+     */
+    private function validateElement($element, string $expectedType, string $name): void
+    {
+        if ($element instanceof $expectedType) {
+            return;
+        }
+        $type = get_debug_type($element);
+
+        throw new InvalidArgumentException("$name should implement $expectedType. $type Given.");
     }
 
     public function getName(): string
