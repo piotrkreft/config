@@ -156,23 +156,71 @@ class PKConfigExtension extends Extension
      */
     private function processAdapters(array $config, ContainerBuilder $container, YamlFileLoader $loader): array
     {
-        $adaptersMap = [];
-        if ($this->isConfigEnabled($container, $config['aws_ssm'])) {
-            if (!class_exists(SsmClient::class)) {
-                throw new LogicException(
-                    'Cannot enable aws_ssm without AWS SDK. Try running "composer require aws/aws-sdk-php".'
-                );
-            }
-            $container->setParameter('pk.config.aws.ssm_client.args', $config['aws_ssm']['client']);
-            $container->setParameter('pk.config.adapter.ssm_client.path', $config['aws_ssm']['path']);
-            $loader->load('adapters/aws_ssm.yaml');
-            $adaptersMap['aws_ssm'] = 'pk.config.adapter.ssm_client';
+        $adaptersMap = $this->processAwsSsm($config['aws_ssm'], $container, $loader);
+        $adaptersMap = array_merge($adaptersMap, $this->processLocalEnv($config['local_env'], $container, $loader));
+
+        return $adaptersMap;
+    }
+
+    /**
+     * @param mixed[] $config
+     *
+     * @return string[]
+     */
+    private function processAwsSsm(array $config, ContainerBuilder $container, YamlFileLoader $loader): array
+    {
+        if (empty($config)) {
+            return [];
         }
-        if ($this->isConfigEnabled($container, $config['local_env'])) {
-            $loader->load('adapters/local_env.yaml');
-            $adaptersMap['local_env'] = 'pk.config.adapter.local_env';
+        if (!class_exists(SsmClient::class)) {
+            throw new LogicException(
+                'Cannot enable aws_ssm without AWS SDK. Try running "composer require aws/aws-sdk-php".'
+            );
+        }
+
+        $adaptersMap = [];
+        $loader->load('adapters/aws_ssm.yaml');
+
+        foreach ($config as $name => $adapter) {
+            $serviceId = "pk.config.adapter.ssm_client.$name";
+            $container->setDefinition(
+                $serviceId,
+                new Definition(
+                    $adapter['path'] ?
+                        '%pk.config.adapter.ssm_by_path_client.class%' :
+                        '%pk.config.adapter.ssm_client.class%',
+                    array_filter([
+                        '$ssmClient' => new Definition(
+                            '%pk.config.aws.ssm_client.class%',
+                            ['$args' => $adapter['client']]
+                        ),
+                        '$path' => $adapter['path'],
+                    ])
+                )
+            );
+            if ('default' === $name) {
+                $adaptersMap['aws_ssm'] = $serviceId;
+            }
+            $adaptersMap["aws_ssm.$name"] = $serviceId;
         }
 
         return $adaptersMap;
+    }
+
+    /**
+     * @param mixed[] $config
+     *
+     * @return string[]
+     */
+    private function processLocalEnv(array $config, ContainerBuilder $container, YamlFileLoader $loader): array
+    {
+        if (!$this->isConfigEnabled($container, $config)) {
+            return [];
+        }
+        $loader->load('adapters/local_env.yaml');
+
+        return [
+            'local_env' => 'pk.config.adapter.local_env',
+        ];
     }
 }

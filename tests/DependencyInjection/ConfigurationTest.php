@@ -164,16 +164,17 @@ class ConfigurationTest extends TestCase
                         'enabled' => true,
                     ],
                     'aws_ssm' => [
-                        'client' => [
-                            'credentials' => [
-                                'key' => 'key',
-                                'secret' => 'secret',
+                        'default' => [
+                            'client' => [
+                                'credentials' => [
+                                    'key' => 'key',
+                                    'secret' => 'secret',
+                                ],
+                                'version' => 'latest',
+                                'region' => 'EU',
                             ],
-                            'version' => 'latest',
-                            'region' => 'EU',
+                            'path' => '/path',
                         ],
-                        'path' => '/path',
-                        'enabled' => true,
                     ],
                 ],
             ],

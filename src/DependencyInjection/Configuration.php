@@ -50,45 +50,67 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                     ->append($this->entries())
-                    ->arrayNode('adapters')
-                        ->children()
-                            ->arrayNode('aws_ssm')
-                                ->info('Integrates AWS Simple Systems Manager.')
-                                ->canBeEnabled()
-                                ->children()
-                                    ->arrayNode('client')
-                                        ->isRequired()
-                                        ->children()
-                                            ->arrayNode('credentials')
-                                                ->isRequired()
-                                                ->children()
-                                                    ->scalarNode('key')->isRequired()->end()
-                                                    ->scalarNode('secret')->isRequired()->end()
-                                                ->end()
+                ->end()
+            ->end();
+
+        $this->addAdaptersSection($treeBuilder->getRootNode());
+
+        return $treeBuilder;
+    }
+
+    private function addAdaptersSection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+                ->arrayNode('adapters')
+                    ->children()
+                        ->arrayNode('aws_ssm')
+                            ->info('Integrates AWS Simple Systems Manager.')
+                            ->useAttributeAsKey('name')
+                            ->beforeNormalization()
+                                /** @param mixed $v */
+                                ->ifTrue(function ($v) {
+                                    return isset($v['client']) && !isset($v['client']['client']);
+                                })
+                                ->then(function (array $v): array {
+                                    return ['default' => $v];
+                                })
+                            ->end()
+                            ->arrayPrototype()
+
+                            ->children()
+                                ->arrayNode('client')
+                                    ->isRequired()
+                                    ->children()
+                                        ->arrayNode('credentials')
+                                            ->isRequired()
+                                            ->children()
+                                                ->scalarNode('key')->isRequired()->end()
+                                                ->scalarNode('secret')->isRequired()->end()
                                             ->end()
-                                            ->scalarNode('version')->defaultValue('latest')->end()
-                                            ->scalarNode('region')->isRequired()->end()
                                         ->end()
-                                    ->end()
-                                    ->scalarNode('path')
-                                        ->info(
-                                            'If provided parameters will be fetched by path.
-                                            `{env}` substring will be replaced on fetching with given environment.'
-                                        )
-                                        ->defaultValue(null)
+                                        ->scalarNode('version')->defaultValue('latest')->end()
+                                        ->scalarNode('region')->isRequired()->end()
                                     ->end()
                                 ->end()
+                                ->scalarNode('path')
+                                    ->info(
+                                        'If provided parameters will be fetched by path.
+                                        `{env}` substring will be replaced on fetching with given environment.'
+                                    )
+                                    ->defaultNull()
+                                ->end()
                             ->end()
-                            ->arrayNode('local_env')
-                                ->info('Integrates local environment variables.')
-                                ->canBeEnabled()
+
                             ->end()
+                        ->end()
+                        ->arrayNode('local_env')
+                            ->info('Integrates local environment variables.')
+                            ->canBeEnabled()
                         ->end()
                     ->end()
                 ->end()
             ->end();
-
-        return $treeBuilder;
     }
 
     private function entries(bool $inEnvironment = false): ArrayNodeDefinition

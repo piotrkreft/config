@@ -61,7 +61,7 @@ bin/console pk:config:validate dev
 ### Adapters
 To be able to use a different configuration sources adapters are needed.
 By default, package provides:
-* aws_ssm (`PK\Config\StorageAdapter\AwsSsm`) - for AWS Simple Systems Manager parameters
+* aws_ssm (multiple)(`PK\Config\StorageAdapter\{AwsSsm, AwsSsmByPath}`) - for AWS Simple Systems Manager parameters
 * local_env (`PK\Config\StorageAdapter\LocalEnv`) - for local environment variables
 
 and each of those is available to be instantiated via component configuration.
@@ -69,6 +69,8 @@ and each of those is available to be instantiated via component configuration.
 If needed a new adapter can be easily created. Just remember to interface it with `PK\Config\StorageAdapterInterface` and to instantiate it.
 
 :information_source: Order of the adapters in each environment is also a priority. If the first adapter provides value, the following will be ignored.
+
+:information_source: If adapter has multiple option assigned it can be configured with multiple different instances. If so each can be referenced in env.adapters like {adapter}.{name} (i.e. aws_ssm.default)
 
 ### Testing
 ```bash

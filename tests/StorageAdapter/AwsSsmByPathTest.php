@@ -9,9 +9,9 @@ use Aws\Ssm\SsmClient;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PK\Config\Entry;
-use PK\Config\StorageAdapter\AwsSsm;
+use PK\Config\StorageAdapter\AwsSsmByPath;
 
-class AwsSsmTest extends TestCase
+class AwsSsmByPathTest extends TestCase
 {
     /**
      * @var SsmClient|MockObject
@@ -19,7 +19,7 @@ class AwsSsmTest extends TestCase
     private $mockSsmClient;
 
     /**
-     * @var AwsSsm
+     * @var AwsSsmByPath
      */
     private $adapter;
 
@@ -30,8 +30,9 @@ class AwsSsmTest extends TestCase
             ->addMethods(['getParametersByPath', 'getParameters'])
             ->getMock();
 
-        $this->adapter = new AwsSsm(
-            $this->mockSsmClient
+        $this->adapter = new AwsSsmByPath(
+            $this->mockSsmClient,
+            '/{env}/global/'
         );
     }
 
@@ -40,15 +41,17 @@ class AwsSsmTest extends TestCase
         // given
         $this->mockSsmClient
             ->expects($this->exactly(2))
-            ->method('getParameters')
+            ->method('getParametersByPath')
             ->withConsecutive(
                 [
                     [
+                        'Path' => '/dev/global/',
                         'WithDecryption' => true,
                     ],
                 ],
                 [
                     [
+                        'Path' => '/dev/global/',
                         'WithDecryption' => true,
                         'NextToken' => 'tst',
                     ],
@@ -57,13 +60,13 @@ class AwsSsmTest extends TestCase
             ->willReturnOnConsecutiveCalls(
                 new Result([
                     'Parameters' => [
-                        ['Name' => '/path/VAR_1', 'Value' => 'value_1'],
+                        ['Name' => '/dev/global/VAR_1', 'Value' => 'value_1'],
                     ],
                     'NextToken' => 'tst',
                 ]),
                 new Result([
                     'Parameters' => [
-                        ['Name' => 'VAR_2', 'Value' => 'value_2'],
+                        ['Name' => '/dev/global/VAR_2', 'Value' => 'value_2'],
                     ],
                     'NextToken' => null,
                 ])
@@ -75,7 +78,7 @@ class AwsSsmTest extends TestCase
         // then
         $this->assertEquals(
             [
-                new Entry('/path/VAR_1', 'value_1'),
+                new Entry('VAR_1', 'value_1'),
                 new Entry('VAR_2', 'value_2'),
             ],
             $entries

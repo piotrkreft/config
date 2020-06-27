@@ -23,7 +23,6 @@ namespace PK\Tests\Config\DependencyInjection
     use PK\Config\Environment\EntryConfiguration;
     use PK\Config\Exception\LogicException;
     use PK\Config\PKConfigBundle;
-    use PK\Config\StorageAdapter\AwsSsm;
     use PK\Config\StorageAdapter\LocalEnv;
     use PK\Config\StorageAdapter\NameResolver;
     use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -85,7 +84,7 @@ namespace PK\Tests\Config\DependencyInjection
                         ],
                     ],
                     'stage' => [
-                        'adapters' => 'aws_ssm',
+                        'adapters' => 'aws_ssm.specific',
                         'entries' => [
                             'ENV_VAR_4' => [
                                 'disabled' => true,
@@ -116,16 +115,27 @@ namespace PK\Tests\Config\DependencyInjection
                 'adapters' => [
                     'local_env' => true,
                     'aws_ssm' => [
-                        'client' => [
-                            'credentials' => [
-                                'key' => 'key',
-                                'secret' => 'secret',
+                        'default' => [
+                            'client' => [
+                                'credentials' => [
+                                    'key' => 'key',
+                                    'secret' => 'secret',
+                                ],
+                                'version' => 'latest',
+                                'region' => 'EU',
                             ],
-                            'version' => 'latest',
-                            'region' => 'EU',
+                            'path' => '/path',
                         ],
-                        'path' => '/path',
-                        'enabled' => true,
+                        'specific' => [
+                            'client' => [
+                                'credentials' => [
+                                    'key' => 'key_specific',
+                                    'secret' => 'secret',
+                                ],
+                                'version' => 'version',
+                                'region' => 'EU',
+                            ],
+                        ],
                     ],
                 ],
             ];
@@ -135,9 +145,52 @@ namespace PK\Tests\Config\DependencyInjection
             $this->extension->load([$configuration], $container);
 
             // then
-            $this->assertTrue($container->hasDefinition('pk.config.aws.ssm_client'));
-            $this->assertTrue($container->hasAlias(AwsSsm::class));
-            $this->assertTrue($container->hasAlias(LocalEnv::class));
+            $this->assertTrue($container->hasDefinition('pk.config.adapter.ssm_client.default'));
+            $this->assertEquals(
+                new Definition(
+                    '%pk.config.adapter.ssm_by_path_client.class%',
+                    [
+                        '$ssmClient' => new Definition(
+                            '%pk.config.aws.ssm_client.class%',
+                            [
+                                '$args' => [
+                                    'credentials' => [
+                                        'key' => 'key',
+                                        'secret' => 'secret',
+                                    ],
+                                    'version' => 'latest',
+                                    'region' => 'EU',
+                                ],
+                            ]
+                        ),
+                        '$path' => '/path',
+                    ]
+                ),
+                $container->getDefinition('pk.config.adapter.ssm_client.default')
+            );
+            $this->assertTrue($container->hasDefinition('pk.config.adapter.ssm_client.specific'));
+            $this->assertEquals(
+                new Definition(
+                    '%pk.config.adapter.ssm_client.class%',
+                    [
+                        '$ssmClient' => new Definition(
+                            '%pk.config.aws.ssm_client.class%',
+                            [
+                                '$args' => [
+                                    'credentials' => [
+                                        'key' => 'key_specific',
+                                        'secret' => 'secret',
+                                    ],
+                                    'version' => 'version',
+                                    'region' => 'EU',
+                                ],
+                            ]
+                        ),
+                    ]
+                ),
+                $container->getDefinition('pk.config.adapter.ssm_client.specific')
+            );
+            $this->assertTrue($container->hasDefinition('pk.config.adapter.local_env'));
             $environmentsDefinitions = $container->getDefinition('pk.config')->getArgument('$environments');
             $this->assertCount(2, $environmentsDefinitions);
             $this->assertEquals('dev', $environmentsDefinitions[0]->getArgument('$name'));
@@ -164,7 +217,7 @@ namespace PK\Tests\Config\DependencyInjection
                     new Definition(
                         NameResolver::class,
                         [
-                            '$adapter' => new Reference('pk.config.adapter.ssm_client'),
+                            '$adapter' => new Reference('pk.config.adapter.ssm_client.default'),
                             '$resolveFromMap' => ['RESOLVED_ENV_VAR_3' => 'ENV_VAR_3'],
                         ]
                     ),
@@ -184,7 +237,7 @@ namespace PK\Tests\Config\DependencyInjection
                     new Definition(
                         NameResolver::class,
                         [
-                            '$adapter' => new Reference('pk.config.adapter.ssm_client'),
+                            '$adapter' => new Reference('pk.config.adapter.ssm_client.specific'),
                             '$resolveFromMap' => [
                                 'RESOLVED_VAR_5' => 'ENV_VAR_5',
                             ],
@@ -221,11 +274,18 @@ namespace PK\Tests\Config\DependencyInjection
             $container = new ContainerBuilder();
 
             // when
-            $this->extension->load([$this->minimalConfiguration()], $container);
+            $this->extension->load(
+                [
+                    array_merge(
+                        $this->minimalConfiguration(),
+                        ['adapters' => []]
+                    ),
+                ],
+                $container
+            );
 
             // then
-            $this->assertFalse($container->hasDefinition('pk.config.aws.ssm_client'));
-            $this->assertFalse($container->hasAlias(AwsSsm::class));
+            $this->assertFalse($container->hasParameter('pk.config.aws.ssm_client.class'));
             $this->assertFalse($container->hasAlias(LocalEnv::class));
         }
 
@@ -297,7 +357,6 @@ namespace PK\Tests\Config\DependencyInjection
                             'region' => 'EU',
                         ],
                         'path' => '/path',
-                        'enabled' => true,
                     ],
                 ],
             ];
