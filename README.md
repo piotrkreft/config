@@ -77,6 +77,11 @@ If needed a new adapter can be easily created. Just remember to interface it wit
 composer test
 ```
 
+Static checks issues fix
+```bash
+composer fix
+```
+
 ## Changelog
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 

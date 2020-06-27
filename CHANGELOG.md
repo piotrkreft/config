@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - 2020-06-27
 ### Added
 - Enabled possibility to have multiple AWS SSM adapters.
+- Added info regarding static checks fixes.
 
 ## [0.3.1] - 2020-06-22
 ### Fixed
