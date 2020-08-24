@@ -9,5 +9,9 @@
         "badge": {
             "branch": "master"
         }
+    },
+    "mutators": {
+        "@default": true,
+        "ProtectedVisibility": false
     }
 }

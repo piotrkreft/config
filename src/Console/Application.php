@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PK\Config\Console;
 
-use PK\Config\DependencyInjection\ContainerFactory;
+use PK\Config\DependencyInjection\ContainerFactoryInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command;
@@ -20,11 +20,11 @@ class Application extends BaseApplication
     private $commandsRegistered = false;
 
     /**
-     * @var ContainerFactory
+     * @var ContainerFactoryInterface
      */
     protected $containerFactory;
 
-    public function __construct(ContainerFactory $containerFactory)
+    public function __construct(ContainerFactoryInterface $containerFactory)
     {
         $this->containerFactory = $containerFactory;
 
