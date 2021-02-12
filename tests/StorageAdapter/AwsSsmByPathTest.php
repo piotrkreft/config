@@ -68,7 +68,6 @@ class AwsSsmByPathTest extends TestCase
                     'Parameters' => [
                         ['Name' => '/dev/global/VAR_2', 'Value' => 'value_2'],
                     ],
-                    'NextToken' => null,
                 ])
             );
 

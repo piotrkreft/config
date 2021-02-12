@@ -65,7 +65,6 @@ class AwsSsmTest extends TestCase
                     'Parameters' => [
                         ['Name' => 'VAR_2', 'Value' => 'value_2'],
                     ],
-                    'NextToken' => null,
                 ])
             );
 

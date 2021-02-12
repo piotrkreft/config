@@ -47,7 +47,7 @@ class AwsSsmByPath implements StorageAdapterInterface
                     $parameter['Value']
                 );
             }
-            $nextToken = $parameters['NextToken'] ?? null;
+            $nextToken = $parameters['NextToken'];
         }
 
         return $entries;

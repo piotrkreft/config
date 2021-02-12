@@ -34,7 +34,7 @@ class AwsSsm implements StorageAdapterInterface
             foreach ($parameters['Parameters'] as $parameter) {
                 $entries[] = new Entry($parameter['Name'], $parameter['Value']);
             }
-            $nextToken = $parameters['NextToken'] ?? null;
+            $nextToken = $parameters['NextToken'];
         }
 
         return $entries;
