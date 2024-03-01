@@ -23,7 +23,6 @@ namespace PK\Tests\Config\StorageAdapter
 
         public function testShouldFetch(): void
         {
-
             // when
             $entries = $this->adapter->fetch('some');
 
