@@ -32,9 +32,10 @@ namespace PK\Tests\Config\StorageAdapter
                 if ('ENV_VAR_1' === $entry->getName()) {
                     $foundVar1 = $entry->getValue();
                 }
-                if ('ENV_VAR_2' === $entry->getName()) {
-                    $foundVar2 = $entry->getValue();
+                if ('ENV_VAR_2' !== $entry->getName()) {
+                    continue;
                 }
+                $foundVar2 = $entry->getValue();
             }
             $this->assertEquals('env_var_value_1', $foundVar1);
             $this->assertEquals('env_var_value_2', $foundVar2);
