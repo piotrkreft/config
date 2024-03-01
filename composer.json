@@ -51,7 +51,8 @@
     "config": {
         "allow-plugins": {
             "infection/extension-installer": true,
-            "ocramius/package-versions": true
+            "ocramius/package-versions": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }
