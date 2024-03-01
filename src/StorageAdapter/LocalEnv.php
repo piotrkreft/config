@@ -15,7 +15,7 @@ class LocalEnv implements StorageAdapterInterface
     public function fetch(string $environment): array
     {
         $entries = [];
-        foreach (getenv() as $name => $value) {
+        foreach ($_SERVER + $_ENV as $name => $value) {
             $entries[] = new Entry($name, $value);
         }
 
