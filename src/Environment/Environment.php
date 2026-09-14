@@ -39,7 +39,7 @@ class Environment implements EnvironmentInterface
 
     /**
      * @param StorageAdapterInterface[] $adapters
-     * @param EntryConfiguration[]      $entriesConfiguration
+     * @param EntryConfiguration[] $entriesConfiguration
      */
     public function __construct(string $name, iterable $adapters, iterable $entriesConfiguration)
     {
