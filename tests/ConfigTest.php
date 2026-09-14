@@ -13,15 +13,8 @@ use PK\Config\Exception\OutOfRangeException;
 
 class ConfigTest extends TestCase
 {
-    /**
-     * @var EnvironmentInterface|MockObject
-     */
-    private $mockEnvironment;
-
-    /**
-     * @var Config
-     */
-    private $config;
+    private EnvironmentInterface&MockObject $mockEnvironment;
+    private Config $config;
 
     protected function setUp(): void
     {

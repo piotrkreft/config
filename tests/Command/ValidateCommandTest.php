@@ -13,20 +13,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class ValidateCommandTest extends TestCase
 {
-    /**
-     * @var ConfigInterface|MockObject
-     */
-    private $mockConfiguration;
-
-    /**
-     * @var ValidateCommand
-     */
-    private $command;
-
-    /**
-     * @var CommandTester
-     */
-    private $tester;
+    private ConfigInterface&MockObject $mockConfiguration;
+    private ValidateCommand $command;
+    private CommandTester $tester;
 
     protected function setUp(): void
     {

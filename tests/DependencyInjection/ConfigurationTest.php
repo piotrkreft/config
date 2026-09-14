@@ -11,15 +11,8 @@ use Symfony\Component\Config\Definition\Processor;
 
 class ConfigurationTest extends TestCase
 {
-    /**
-     * @var Processor
-     */
-    private $processor;
-
-    /**
-     * @var Configuration
-     */
-    private $configuration;
+    private Processor $processor;
+    private Configuration $configuration;
 
     protected function setUp(): void
     {
@@ -28,9 +21,6 @@ class ConfigurationTest extends TestCase
         $this->configuration = new Configuration();
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     */
     public function testShouldCreateConfigurationPerEnv(): void
     {
         // given

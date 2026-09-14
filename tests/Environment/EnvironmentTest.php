@@ -16,20 +16,9 @@ use PK\Config\StorageAdapterInterface;
 
 class EnvironmentTest extends TestCase
 {
-    /**
-     * @var StorageAdapterInterface|MockObject
-     */
-    private $firstAdapter;
-
-    /**
-     * @var StorageAdapterInterface|MockObject
-     */
-    private $secondAdapter;
-
-    /**
-     * @var Environment
-     */
-    private $environment;
+    private StorageAdapterInterface&MockObject $firstAdapter;
+    private StorageAdapterInterface&MockObject $secondAdapter;
+    private Environment $environment;
 
     protected function setUp(): void
     {
@@ -237,6 +226,7 @@ class EnvironmentTest extends TestCase
         $this->expectExceptionMessage(StorageAdapterInterface::class);
 
         // when
+        /** @phpstan-ignore-next-line */
         new Environment('env', [new \stdClass()], [new EntryConfiguration('name')]);
     }
 
@@ -247,6 +237,7 @@ class EnvironmentTest extends TestCase
         $this->expectExceptionMessage(EntryConfiguration::class);
 
         // when
+        /** @phpstan-ignore-next-line */
         new Environment('env', [$this->firstAdapter], ['string']);
     }
 }

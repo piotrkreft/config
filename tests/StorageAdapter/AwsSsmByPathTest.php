@@ -13,15 +13,9 @@ use PK\Config\StorageAdapter\AwsSsmByPath;
 
 class AwsSsmByPathTest extends TestCase
 {
-    /**
-     * @var SsmClient|MockObject
-     */
-    private $mockSsmClient;
+    private SsmClient&MockObject $mockSsmClient;
 
-    /**
-     * @var AwsSsmByPath
-     */
-    private $adapter;
+    private AwsSsmByPath $adapter;
 
     protected function setUp(): void
     {

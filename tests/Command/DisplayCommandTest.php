@@ -14,20 +14,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class DisplayCommandTest extends TestCase
 {
-    /**
-     * @var ConfigInterface|MockObject
-     */
-    private $mockConfiguration;
-
-    /**
-     * @var DisplayCommand
-     */
-    private $command;
-
-    /**
-     * @var CommandTester
-     */
-    private $tester;
+    private ConfigInterface&MockObject $mockConfiguration;
+    private DisplayCommand $command;
+    private CommandTester $tester;
 
     protected function setUp(): void
     {

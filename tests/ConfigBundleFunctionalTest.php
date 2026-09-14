@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PK\Tests\Config;
 
 use PHPUnit\Framework\TestCase;
+use PK\Config\ConfigInterface;
 use PK\Config\Entry;
 use PK\Tests\Config\Fixtures\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -13,10 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class ConfigBundleFunctionalTest extends TestCase
 {
-    /**
-     * @var Kernel
-     */
-    private $kernel;
+    private Kernel $kernel;
 
     protected function setUp(): void
     {
@@ -33,6 +31,7 @@ class ConfigBundleFunctionalTest extends TestCase
     public function testShouldResetTheServiceOnEveryButFirstRequest(): void
     {
         // given
+        /** @var ConfigInterface $config */
         $config = $this->kernel->getContainer()->get('pk.config');
 
         // when

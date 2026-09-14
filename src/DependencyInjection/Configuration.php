@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
                         return $this->mergeEntries($v);
                     })
                 ->end()
+                /** @phpstan-ignore-next-line */
                 ->children()
                     ->arrayNode('envs')
                         ->isRequired()
@@ -53,6 +54,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end();
 
+        /** @phpstan-ignore-next-line */
         $this->addAdaptersSection($treeBuilder->getRootNode());
 
         return $treeBuilder;
@@ -76,6 +78,7 @@ class Configuration implements ConfigurationInterface
                                     return ['default' => $v];
                                 })
                             ->end()
+                            /** @phpstan-ignore-next-line */
                             ->arrayPrototype()
 
                             ->children()
@@ -126,6 +129,7 @@ class Configuration implements ConfigurationInterface
                     })
                     ->thenInvalid('Cannot set `required` as false and `default_value`.')
                 ->end()
+                /** @phpstan-ignore-next-line */
                 ->children()
                     ->booleanNode('required')
                         ->defaultTrue()
@@ -190,11 +194,11 @@ class Configuration implements ConfigurationInterface
 
     /**
      * @param string[]             $adapters
-     * @param string|string[]|null $resolveFrom
+     * @param string[]|string|null $resolveFrom
      *
      * @return string[]
      */
-    private function normalizeResolveFrom(array $adapters, $resolveFrom, string $path): array
+    private function normalizeResolveFrom(array $adapters,  $resolveFrom, string $path): array
     {
         if (null === $resolveFrom) {
             return [];
