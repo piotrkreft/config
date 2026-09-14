@@ -13,15 +13,8 @@ use PK\Config\StorageAdapter\AwsSsm;
 
 class AwsSsmTest extends TestCase
 {
-    /**
-     * @var SsmClient|MockObject
-     */
-    private $mockSsmClient;
-
-    /**
-     * @var AwsSsm
-     */
-    private $adapter;
+    private SsmClient&MockObject $mockSsmClient;
+    private AwsSsm $adapter;
 
     protected function setUp(): void
     {

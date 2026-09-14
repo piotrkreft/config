@@ -36,20 +36,14 @@ class Application extends BaseApplication
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function find($name): Command
+    public function find(string $name): Command
     {
         $this->registerCommands();
 
         return parent::find($name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function get($name): Command
+    public function get(string $name): Command
     {
         $this->registerCommands();
 
@@ -59,7 +53,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function all($namespace = null): array
+    public function all(string $namespace = null): array
     {
         $this->registerCommands();
 

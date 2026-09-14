@@ -33,20 +33,17 @@ class Environment implements EnvironmentInterface
     private $optionalEntries;
 
     /**
-     * @var EntryConfiguration[]
-     */
-    private $entries;
-
-    /**
      * @param StorageAdapterInterface[] $adapters
      * @param EntryConfiguration[]      $entriesConfiguration
      */
     public function __construct(string $name, iterable $adapters, iterable $entriesConfiguration)
     {
         $this->name = $name;
+        /** @phpstan-ignore-next-line */
         if (!count($adapters)) {
             throw new LogicException('At least one adapter has to be provided.');
         }
+        /** @phpstan-ignore-next-line */
         if (!count($entriesConfiguration)) {
             throw new LogicException('At least one entry configuration has to be provided.');
         }
@@ -58,7 +55,7 @@ class Environment implements EnvironmentInterface
         foreach ($entriesConfiguration as $configuration) {
             $this->validateElement($configuration, EntryConfiguration::class, 'Entry configuration');
             $property = $configuration->isRequired() ? 'requiredEntries' : 'optionalEntries';
-            $this->{$property}[$configuration->getName()] = $this->entries[$configuration->getName()] = $configuration;
+            $this->{$property}[$configuration->getName()] = $configuration;
         }
     }
 
@@ -134,7 +131,7 @@ class Environment implements EnvironmentInterface
      *
      * @return string[]
      */
-    private function validateMissing(array &$entries): array
+    private function validateMissing(array & $entries): array
     {
         if (!$missing = array_diff_key($this->requiredEntries, $entries)) {
             return [];

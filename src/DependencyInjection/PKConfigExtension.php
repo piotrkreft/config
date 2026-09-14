@@ -10,6 +10,7 @@ use PK\Config\Environment\Environment;
 use PK\Config\Exception\LogicException;
 use PK\Config\PKConfigBundle;
 use PK\Config\StorageAdapter\NameResolver;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -21,6 +22,8 @@ class PKConfigExtension extends Extension
 {
     /**
      * {@inheritdoc}
+     *
+     * @param mixed[] $configs
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -32,6 +35,7 @@ class PKConfigExtension extends Extension
             $loader->load('services.yaml');
         }
 
+        /** @var ConfigurationInterface $configuration */
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
 
@@ -41,6 +45,7 @@ class PKConfigExtension extends Extension
     private function isInstalledAsBundle(ContainerBuilder $container): bool
     {
         return $container->hasParameter('kernel.bundles')
+            /** @phpstan-ignore-next-line */
             && in_array(PKConfigBundle::class, $container->getParameter('kernel.bundles'));
     }
 
@@ -62,7 +67,6 @@ class PKConfigExtension extends Extension
 
     /**
      * @param mixed[]  $config
-     * @param mixed[]  $globalEntries
      * @param string[] $adaptersMap
      */
     private function processEnvConfig(
@@ -121,7 +125,6 @@ class PKConfigExtension extends Extension
 
     /**
      * @param mixed[]  $entries
-     * @param string[] $adapters
      *
      * @return string[][]
      */

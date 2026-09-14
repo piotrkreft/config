@@ -51,9 +51,6 @@ namespace PK\Tests\Config\DependencyInjection
             self::$mockClassExists = false;
         }
 
-        /**
-         * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-         */
         public function testShouldLoadConfiguration(): void
         {
             // given

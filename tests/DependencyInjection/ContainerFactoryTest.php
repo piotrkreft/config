@@ -9,10 +9,7 @@ use PK\Config\DependencyInjection\ContainerFactory;
 
 class ContainerFactoryTest extends TestCase
 {
-    /**
-     * @var ContainerFactory
-     */
-    private $containerFactory;
+    private ContainerFactory $containerFactory;
 
     protected function setUp(): void
     {
@@ -25,7 +22,7 @@ class ContainerFactoryTest extends TestCase
         $this->expectNotToPerformAssertions();
 
         // when
-        $this->containerFactory->create(realpath(__DIR__ . '/../Fixtures/Resources/config/config.yaml'));
+        $this->containerFactory->create((string) realpath(__DIR__ . '/../Fixtures/Resources/config/config.yaml'));
     }
 
     public function testShouldCreateWithoutConfigurationFile(): void

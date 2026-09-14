@@ -12,15 +12,8 @@ use PK\Config\StorageAdapterInterface;
 
 class NameResolverTest extends TestCase
 {
-    /**
-     * @var StorageAdapterInterface|MockObject
-     */
-    private $mockAdapter;
-
-    /**
-     * @var NameResolver
-     */
-    private $adapter;
+    private StorageAdapterInterface&MockObject $mockAdapter;
+    private NameResolver $adapter;
 
     protected function setUp(): void
     {

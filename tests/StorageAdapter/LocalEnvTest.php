@@ -9,10 +9,7 @@ use PK\Config\StorageAdapter\LocalEnv;
 
 class LocalEnvTest extends TestCase
 {
-    /**
-     * @var LocalEnv
-     */
-    private $adapter;
+    private LocalEnv $adapter;
 
     protected function setUp(): void
     {

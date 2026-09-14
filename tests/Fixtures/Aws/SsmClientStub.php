@@ -11,6 +11,8 @@ class SsmClientStub extends SsmClient
 {
     /**
      * {@inheritdoc}
+     *
+     * @phpstan-ignore-next-line
      */
     public function __construct(array $args)
     {
@@ -18,6 +20,8 @@ class SsmClientStub extends SsmClient
 
     /**
      * {@inheritdoc}
+     *
+     * @phpstan-ignore-next-line
      */
     public function __call($name, array $args): Result
     {

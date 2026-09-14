@@ -11,10 +11,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 
 class ApplicationFunctionalTest extends TestCase
 {
-    /**
-     * @var ApplicationTester
-     */
-    private $tester;
+    private ApplicationTester $tester;
 
     protected function setUp(): void
     {

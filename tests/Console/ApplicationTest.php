@@ -15,20 +15,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ApplicationTest extends TestCase
 {
-    /**
-     * @var ContainerInterface|MockObject
-     */
-    private $mockContainer;
-
-    /**
-     * @var ContainerFactory|MockObject
-     */
-    private $mockContainerFactory;
-
-    /**
-     * @var Application
-     */
-    private $application;
+    private ContainerInterface&MockObject $mockContainer;
+    private ContainerFactory&MockObject $mockContainerFactory;
+    private Application $application;
 
     protected function setUp(): void
     {

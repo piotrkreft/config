@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace PK\Tests\Config;
 
 use PHPUnit\Framework\TestCase;
-use PK\Config\Config;
 use PK\Config\ConfigFactory;
+use PK\Config\ConfigInterface;
 use PK\Config\Entry;
 
 class ConfigFunctionalTest extends TestCase
 {
-    /**
-     * @var Config
-     */
-    private $config;
+    private ConfigInterface $config;
 
     protected function setUp(): void
     {
-        $this->config = ConfigFactory::create(realpath(__DIR__ . '/Fixtures/Resources/config/config.yaml'));
+        $this->config = ConfigFactory::create((string) realpath(__DIR__ . '/Fixtures/Resources/config/config.yaml'));
     }
 
     public function testShouldFetch(): void

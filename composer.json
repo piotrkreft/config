@@ -11,19 +11,24 @@
     ],
     "bin": ["bin/pk-config"],
     "require": {
-        "php": ">=7.2.5",
-        "symfony/config": "^4.2|^5.0",
-        "symfony/console": "^3.4|^4.0|^5.0",
-        "symfony/dependency-injection": "^4.0|^5.0",
-        "symfony/yaml": "^4.0|^5.0",
+        "php": ">=8.2",
+        "symfony/config": "^6.4|^7.4",
+        "symfony/console": "^6.4|^7.4",
+        "symfony/dependency-injection": "^6.4|^7.4",
+        "symfony/yaml": "^6.4|^7.4",
         "symfony/polyfill-php80": "^1.15"
     },
     "require-dev": {
-        "aws/aws-sdk-php": "^3.0",
+        "aws/aws-sdk-php": "^3.189",
         "composer/package-versions-deprecated": "^1.1",
-        "piotrkreft/ci": "^0.4",
-        "symfony/http-kernel": "^4.0|^5.0",
-        "symfony/framework-bundle": "^4.0|^5.0"
+        "symfony/http-kernel": "^6.4|^7.4",
+        "symfony/framework-bundle": "^6.4|^7.4",
+        "infection/infection": "^0.30",
+        "php-coveralls/php-coveralls": "^2.2",
+        "phpstan/phpstan": "^2.2",
+        "phpunit/phpunit": "^9.6",
+        "slevomat/coding-standard": "^6.0",
+        "squizlabs/php_codesniffer": "^3.5.8"
     },
     "suggest": {
         "aws/aws-sdk-php": "For using AWS Simple Systems Manager parameters",
@@ -42,7 +47,9 @@
     "minimum-stability": "dev",
     "scripts": {
         "test": [
-            "vendor/bin/pk-tests --cache-dir=. run"
+            "vendor/bin/phpstan analyse",
+            "vendor/bin/phpunit",
+            "vendor/bin/phpcs"
         ],
         "fix": [
             "vendor/bin/pk-tests --cache-dir=. fix"
